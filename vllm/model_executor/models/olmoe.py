@@ -49,7 +49,7 @@ from vllm.model_executor.layers.vocab_parallel_embedding import (
 from vllm.model_executor.model_loader.weight_utils import default_weight_loader
 from vllm.sequence import IntermediateTensors
 
-from .interfaces import SupportsPP
+from .interfaces import SupportsLoRA, SupportsPP
 from .utils import (
     AutoWeightsLoader,
     is_pp_missing_parameter,
@@ -433,7 +433,7 @@ class OlmoeModel(nn.Module):
         return loaded_params
 
 
-class OlmoeForCausalLM(nn.Module, SupportsPP):
+class OlmoeForCausalLM(nn.Module, SupportsPP, SupportsLoRA):
     packed_modules_mapping = {
         "qkv_proj": [
             "q_proj",
@@ -456,8 +456,10 @@ class OlmoeForCausalLM(nn.Module, SupportsPP):
         super().__init__()
         config = vllm_config.model_config.hf_config
         quant_config = vllm_config.quant_config
+        lora_config = vllm_config.lora_config
         self.config = config
         self.quant_config = quant_config
+        self.lora_config = lora_config
         self.model = OlmoeModel(
             vllm_config=vllm_config,
             prefix=maybe_prefix(prefix, "model"),
