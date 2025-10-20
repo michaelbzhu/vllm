@@ -4,7 +4,7 @@ This forked version allows LoRA to be applied to `gpt-oss` models
 ```
 uv venv
 VLLM_USE_PRECOMPILED=1 uv pip install --editable .
-.venv/bin/activate
+source .venv/bin/activate
 export VLLM_ALLOW_RUNTIME_LORA_UPDATING=True
 CUDA_VISIBLE_DEVICES=1 vllm serve openai/gpt-oss-120b  --enable-lora
 ```
