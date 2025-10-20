@@ -16,6 +16,8 @@ Async backends support the use of DBO (Dual Batch Overlap) and shared expert ove
 
 Certain models require the topk weights to be applied to the input activations rather than the output activations when topk==1, e.g. llama. For modular kernels, this feature is supported by the `FusedMoEPrepareAndFinalize` subclass, for non-modular kernels, it is up to the experts function to deal with this flag.
 
+Beginning in PR [#26717](https://github.com/vllm-project/vllm/pull/26717) the router interface also exposes a `renormalize` flag that is forwarded all the way down to the `topk_softmax` CUDA kernel. Earlier versions performed the optional probability renormalization step inside Python after the custom op returned, which meant launching an extra kernel whenever models required the post-topk probabilities to sum to one (common for top-k>1 routing schemes). The PR fuses that logic into the custom op so the gate can cast to `float`, apply softmax, renormalize (when requested), and cast back to the target dtype without another round-trip through Python. Because the flag is now part of the kernel signature, both the Python wrapper and the compiled `_moe_C` extension must be updated together; mixing the new Python code with an older binary (or vice versa) will result in the five-argument call mismatch observed when running commits prior to the rebuild.
+
 unless otherwise specified, backends are controlled via `VLLM_ALL2ALL_BACKEND`.  All backends except `flashinfer` only work with EP+DP or EP+TP. `Flashinfer` can work with EP or DP w/o EP.
 
 <style>
