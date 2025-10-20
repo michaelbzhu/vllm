@@ -1,3 +1,14 @@
+Setup commands to use in LoRA without Regret experiments:
+
+This forked version allows LoRA to be applied to `gpt-oss` models
+```
+uv venv
+VLLM_USE_PRECOMPILED=1 uv pip install --editable .
+.venv/bin/activate
+export VLLM_ALLOW_RUNTIME_LORA_UPDATING=True
+CUDA_VISIBLE_DEVICES=1 vllm serve openai/gpt-oss-120b  --enable-lora
+```
+
 <!-- markdownlint-disable MD001 MD041 -->
 <p align="center">
   <picture>
